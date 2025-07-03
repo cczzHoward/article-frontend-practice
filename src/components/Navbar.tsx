@@ -15,9 +15,6 @@ const Navbar: React.FC = () => {
                 <li>
                     <Link to="/about">關於我們</Link>
                 </li>
-                <li>
-                    <Link to="/contact">聯絡我們</Link>
-                </li>
             </ul>
         </nav>
     );
