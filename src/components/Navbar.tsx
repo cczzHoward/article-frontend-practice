@@ -1,21 +1,24 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import '../styles/Navbar.css';
+import '../styles/Navbar.scss';
 
 const Navbar: React.FC = () => {
     return (
         <nav className="navbar">
-            <div className="navbar-logo">
-                <Link to="/">部落格</Link>
+            <div className="navbar-container">
+                <div className="navbar-logo">
+                    <Link to="/">部落格Demo</Link>
+                </div>
+                <div className="navbar-blank"></div>
+                <ul className="navbar-links">
+                    <li>
+                        <Link to="/articles">文章列表</Link>
+                    </li>
+                    <li>
+                        <Link to="/about">關於我們</Link>
+                    </li>
+                </ul>
             </div>
-            <ul className="navbar-links">
-                <li>
-                    <Link to="/articles">文章列表</Link>
-                </li>
-                <li>
-                    <Link to="/about">關於我們</Link>
-                </li>
-            </ul>
         </nav>
     );
 };
