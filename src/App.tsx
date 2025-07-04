@@ -9,7 +9,8 @@ const App: React.FC = () => {
             <Routes>
                 <Route path="/" element={<Layout />}>
                     <Route index element={<HomePage />} />
-                    {/* 可以在這裡添加其他路由，例如註冊頁面、登入頁面等 */}
+                    <Route path="articles" element={<div>文章列表</div>} />
+                    <Route path="post-article" element={<div>發布文章</div>} />
                 </Route>
             </Routes>
         </Router>

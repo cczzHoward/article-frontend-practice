@@ -15,7 +15,7 @@ const Navbar: React.FC = () => {
                         <Link to="/articles">文章列表</Link>
                     </li>
                     <li>
-                        <Link to="/about">關於我們</Link>
+                        <Link to="/post-article">發布文章</Link>
                     </li>
                 </ul>
             </div>

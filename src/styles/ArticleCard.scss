@@ -1,0 +1,58 @@
+.article-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    margin: 16px 0;
+    background-color: #fff;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #dfdfdf;
+    }
+}
+
+.article-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+
+    .article-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #333;
+        margin: 0;
+    }
+
+    .article-author {
+        font-size: 0.9rem;
+        color: #666;
+    }
+}
+
+.article-card-content {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 16px;
+}
+
+.article-card-footer {
+    display: flex;
+    justify-content: flex-end;
+
+    .read-more-btn {
+        background-color: #0795c0;
+        color: #fff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+            background-color: #067a9f;
+        }
+    }
+}

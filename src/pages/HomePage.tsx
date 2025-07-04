@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getArticles } from '../api/article';
+import ArticleCard from '@app/components/ArticleCard';
+import '@app/styles/HomePage.scss';
 
 const HomePage: React.FC = () => {
     const [articles, setArticles] = useState<any[]>([]);
@@ -20,19 +22,22 @@ const HomePage: React.FC = () => {
     }, []);
 
     return (
-        <div>
-            <h1>部落格文章</h1>
+        <div className="homepage-container">
+            <h1>最新文章</h1>
             {loading ? (
                 <p>Loading...</p>
             ) : (
-                <ul>
+                <div>
                     {articles.map((article) => (
-                        <li key={article.id}>
-                            <h2>{article.title}</h2>
-                            <p>{article.content.slice(0, 100)}...</p>
-                        </li>
+                        <ArticleCard
+                            key={article.id}
+                            id={article.id}
+                            title={article.title}
+                            content={article.content}
+                            author={article.author.username}
+                        />
                     ))}
-                </ul>
+                </div>
             )}
         </div>
     );
