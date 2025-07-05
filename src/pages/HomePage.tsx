@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getArticles } from '../api/article';
-import ArticleCard from '@app/components/ArticleCard';
+import ArticleCard from '@app/components/ArticleCard.tsx';
 import '@app/styles/HomePage.scss';
 
 const HomePage: React.FC = () => {
