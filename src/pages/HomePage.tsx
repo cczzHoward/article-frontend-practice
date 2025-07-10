@@ -27,7 +27,7 @@ const HomePage: React.FC = () => {
             {loading ? (
                 <p>Loading...</p>
             ) : (
-                <div>
+                <div className="article-list-container">
                     {articles.map((article) => (
                         <ArticleCard
                             key={article.id}

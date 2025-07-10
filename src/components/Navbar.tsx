@@ -17,6 +17,9 @@ const Navbar: React.FC = () => {
                     <li>
                         <Link to="/post-article">發布文章</Link>
                     </li>
+                    <li>
+                        <Link to="/login">登入</Link>
+                    </li>
                 </ul>
             </div>
         </nav>

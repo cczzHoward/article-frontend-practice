@@ -20,13 +20,10 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ id, title, content, author })
         <div className="article-card" onClick={handleClick}>
             <div className="article-card-header">
                 <h2 className="article-title">{title}</h2>
-                <p className="article-author">By {author}</p>
+                <p className="article-author">{author}</p>
             </div>
             <div className="article-card-content">
                 <p>{content.slice(0, 100)}...</p>
-            </div>
-            <div className="article-card-footer">
-                <button className="read-more-btn">Read More</button>
             </div>
         </div>
     );
