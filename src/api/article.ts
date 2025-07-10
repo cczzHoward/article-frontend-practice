@@ -7,7 +7,13 @@ const apiClient = axios.create({
     },
 });
 
-export const getArticles = (params?: { keyword?: string; page?: number; limit?: number }) =>
-    apiClient.get('/articles/list', { params });
+export const getArticles = (params?: {
+    keyword?: string;
+    page?: number;
+    limit?: number;
+    category?: string;
+}) => apiClient.get('/articles/list', { params });
 
 export const getArticleById = (id: string) => apiClient.get(`/articles/${id}`);
+
+export const getCategories = () => apiClient.get('/categories/list');
