@@ -12,6 +12,7 @@ const App: React.FC = () => {
                     <Route index element={<HomePage />} />
                     <Route path="articles" element={<ArticleListPage />} />
                     <Route path="post-article" element={<div>發布文章</div>} />
+                    <Route path="login" element={<div>登入頁面</div>}></Route>
                 </Route>
             </Routes>
         </Router>
