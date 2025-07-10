@@ -2,20 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getArticles, getCategories } from '@app/api/article';
 import ArticleCard from '@app/components/ArticleCard';
 import '@app/styles/ArticleListPage.scss';
-
-interface Category {
-    id: string;
-    name: string;
-}
-
-interface Article {
-    id: string;
-    title: string;
-    content: string;
-    author: {
-        username: string;
-    };
-}
+import type { Category, Article } from '@app/types';
 
 const ArticleListPage: React.FC = () => {
     const [articles, setArticles] = useState<Article[]>([]);
@@ -101,6 +88,7 @@ const ArticleListPage: React.FC = () => {
                                 title={article.title}
                                 content={article.content}
                                 author={article.author.username}
+                                created_at={article.created_at}
                             />
                         ))
                     ) : (

@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { getArticles } from '../api/article';
 import ArticleCard from '@app/components/ArticleCard.tsx';
 import '@app/styles/HomePage.scss';
+import type { Article } from '@app/types';
 
 const HomePage: React.FC = () => {
-    const [articles, setArticles] = useState<any[]>([]);
+    const [articles, setArticles] = useState<Article[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -35,6 +36,7 @@ const HomePage: React.FC = () => {
                             title={article.title}
                             content={article.content}
                             author={article.author.username}
+                            created_at={article.created_at}
                         />
                     ))}
                 </div>
