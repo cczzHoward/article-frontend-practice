@@ -25,7 +25,7 @@
 -   **狀態管理**: React Hooks
 -   **HTTP 客戶端**: Axios
 -   **路由管理**: React Router
--   **樣式**: CSS 或其他樣式庫（可選）
+-   **樣式**: Tailwind css
 
 ## 安裝與使用
 
