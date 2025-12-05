@@ -1,27 +1,146 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import '@app/styles/Navbar.scss';
+import React, { useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const Navbar: React.FC = () => {
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (searchQuery.trim()) {
+            navigate(`/articles?search=${encodeURIComponent(searchQuery)}`);
+            setIsMobileMenuOpen(false);
+        }
+    };
+
+    const isActive = (path: string) => location.pathname === path;
+
     return (
-        <nav className="navbar">
-            <div className="navbar-container">
-                <div className="navbar-logo">
-                    <Link to="/">部落格Demo</Link>
+        <nav className="sticky top-0 z-50 w-full border-b border-slate-700 bg-surface/80 backdrop-blur-md">
+            <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+                {/* Logo */}
+                <div className="flex items-center gap-8">
+                    <Link
+                        to="/"
+                        className="text-2xl font-bold text-slate-100 hover:text-primary transition-colors"
+                    >
+                        DevFlow
+                    </Link>
+
+                    {/* Desktop Links - 替換 .navbar-links */}
+                    <div className="hidden md:flex items-center gap-6">
+                        {[
+                            { label: 'Home', path: '/' },
+                            { label: 'Articles', path: '/articles' },
+                            { label: 'Podcasts', path: '#' },
+                        ].map((link) => (
+                            <Link
+                                key={link.label}
+                                to={link.path}
+                                className={`text-sm font-medium transition-colors hover:text-primary ${
+                                    isActive(link.path) ? 'text-primary' : 'text-slate-300'
+                                }`}
+                            >
+                                {link.label}
+                            </Link>
+                        ))}
+                    </div>
                 </div>
-                <div className="navbar-blank"></div>
-                <ul className="navbar-links">
-                    <li>
-                        <Link to="/articles">文章列表</Link>
-                    </li>
-                    <li>
-                        <Link to="/post-article">發布文章</Link>
-                    </li>
-                    <li>
-                        <Link to="/login">登入</Link>
-                    </li>
-                </ul>
+
+                {/* Search & Actions */}
+                <div className="flex items-center gap-4">
+                    {/* Desktop Search */}
+                    <form onSubmit={handleSearch} className="hidden md:block relative">
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-64 rounded-full border border-slate-600 bg-slate-800/50 px-4 py-1.5 text-sm text-slate-200 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                        />
+                    </form>
+
+                    {/* Auth Buttons */}
+                    <div className="hidden md:flex items-center gap-3">
+                        <Link
+                            to="/login"
+                            className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+                        >
+                            Log in
+                        </Link>
+                        <Link
+                            to="/register"
+                            className="rounded-md bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90"
+                        >
+                            Create account
+                        </Link>
+                    </div>
+
+                    {/* Mobile Menu Button */}
+                    <button
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        className="md:hidden p-2 text-slate-300 hover:text-white"
+                    >
+                        <svg
+                            className="h-6 w-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            {isMobileMenuOpen ? (
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M6 18L18 6M6 6l12 12"
+                                />
+                            ) : (
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M4 6h16M4 12h16M4 18h16"
+                                />
+                            )}
+                        </svg>
+                    </button>
+                </div>
             </div>
+
+            {/* Mobile Menu Dropdown */}
+            {isMobileMenuOpen && (
+                <div className="md:hidden border-t border-slate-700 bg-surface px-4 py-4 space-y-4">
+                    <form onSubmit={handleSearch}>
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full rounded-md border border-slate-600 bg-slate-800 px-4 py-2 text-slate-200 focus:border-primary focus:outline-none"
+                        />
+                    </form>
+                    <div className="flex flex-col gap-2">
+                        <Link to="/" className="block py-2 text-slate-300 hover:text-primary">
+                            Home
+                        </Link>
+                        <Link
+                            to="/articles"
+                            className="block py-2 text-slate-300 hover:text-primary"
+                        >
+                            Articles
+                        </Link>
+                        <hr className="border-slate-700 my-2" />
+                        <Link to="/login" className="block py-2 text-slate-300 hover:text-white">
+                            Log in
+                        </Link>
+                        <Link to="/register" className="block py-2 text-primary font-bold">
+                            Create account
+                        </Link>
+                    </div>
+                </div>
+            )}
         </nav>
     );
 };
