@@ -1,20 +1,13 @@
 import axios from 'axios';
 import type { ApiResponse, Article, ArticleListResponseData, Category } from '@app/types';
 
-// ==========================================
-// 1. 工具函式：解決 MongoDB _id 問題
-// ==========================================
+// 遞迴將 MongoDB 的 _id 映射為 id
 const normalizeId = (data: any): any => {
-    if (Array.isArray(data)) {
-        return data.map(normalizeId);
-    }
+    if (Array.isArray(data)) return data.map(normalizeId);
     if (data !== null && typeof data === 'object') {
         const newObj = { ...data };
-        // 如果有 _id 但沒有 id，就補上 id
-        if (newObj._id && !newObj.id) {
-            newObj.id = newObj._id;
-        }
-        // 遞迴處理所有屬性
+        if (newObj._id && !newObj.id) newObj.id = newObj._id;
+
         Object.keys(newObj).forEach((key) => {
             newObj[key] = normalizeId(newObj[key]);
         });
@@ -23,36 +16,22 @@ const normalizeId = (data: any): any => {
     return data;
 };
 
-// ==========================================
-// 2. Axios 設定
-// ==========================================
 const apiClient = axios.create({
     baseURL: 'http://localhost:8080/api/v1',
-    headers: {
-        'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
 });
 
-// Interceptor: 自動解包 + ID 轉換
+// Interceptor: 自動解包 response.data 並處理 ID
 apiClient.interceptors.response.use(
-    (response) => {
-        return normalizeId(response.data);
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
+    (response) => normalizeId(response.data),
+    (error) => Promise.reject(error)
 );
 
-// ==========================================
-// 3. API Functions (Pure API Calls)
-// ==========================================
-
-// 注意：參數改為物件形式，方便擴充
 export const getArticles = (params?: {
     keyword?: string;
     page?: number;
     limit?: number;
-    category?: string; // 後端 API 接收的是分類名稱 (name)
+    category?: string; // 注意：後端接收的是分類名稱 (name)
 }): Promise<ApiResponse<ArticleListResponseData>> => {
     return apiClient.get('/articles/list', { params });
 };
