@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { getArticles, getCategories } from '@app/api/article';
 import ArticleCard from '@app/components/ArticleCard';
 import type { Category, Article } from '@app/types';
@@ -6,15 +7,16 @@ import type { Category, Article } from '@app/types';
 const ArticleListPage: React.FC = () => {
     const [articles, setArticles] = useState<Article[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
-    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
-    // 載入所有分類
+    const [searchParams] = useSearchParams();
+    const selectedCategoryId = searchParams.get('category');
+
+    // 1. 載入分類
     useEffect(() => {
         const fetchCategories = async () => {
             try {
                 const response = await getCategories();
-                // 修正：response 已經是 ApiResponse，response.data 直接就是 Category[]
                 if (response.success) {
                     setCategories(response.data);
                 }
@@ -25,8 +27,21 @@ const ArticleListPage: React.FC = () => {
         fetchCategories();
     }, []);
 
-    // 當 selectedCategory 改變時，重新載入文章
+    // 2. 使用 useMemo 計算出真正要傳給 API 的分類名稱
+    // 只有當 "有選分類" 且 "分類資料已載入" 時，才會計算出名稱
+    const targetCategoryName = useMemo(() => {
+        if (!selectedCategoryId) return undefined;
+        return categories.find((c) => c.id === selectedCategoryId)?.name;
+    }, [selectedCategoryId, categories]);
+
+    // 3. 載入文章
     useEffect(() => {
+        // 如果使用者選了分類 ID，但我們還沒轉換出 Name (代表分類還在載入中)，則先不發送請求
+        // 這樣可以避免發送一次沒有帶分類參數的錯誤請求
+        if (selectedCategoryId && !targetCategoryName) {
+            return;
+        }
+
         const fetchArticles = async () => {
             setLoading(true);
             try {
@@ -34,15 +49,12 @@ const ArticleListPage: React.FC = () => {
                     page: 1,
                     limit: 10,
                 };
-                if (selectedCategory) {
-                    const categoryObject = categories.find((c) => c.id === selectedCategory);
-                    if (categoryObject) {
-                        params.category = categoryObject.name;
-                    }
+
+                if (targetCategoryName) {
+                    params.category = targetCategoryName;
                 }
+
                 const response = await getArticles(params);
-                // 修正：response.data 是 { total, data: Article[] }
-                // 所以文章列表在 response.data.data
                 if (response.success) {
                     setArticles(response.data.data);
                 }
@@ -52,41 +64,27 @@ const ArticleListPage: React.FC = () => {
                 setLoading(false);
             }
         };
-        // 確保 categories 載入後再 fetch articles
-        if (categories.length > 0 || !selectedCategory) {
-            fetchArticles();
-        }
-    }, [selectedCategory, categories]);
 
-    const handleCategoryClick = (categoryId: string | null) => {
-        setSelectedCategory(categoryId);
-    };
+        fetchArticles();
+    }, [targetCategoryName, selectedCategoryId]);
+
+    // 取得當前選中的分類名稱 (UI顯示用)
+    const currentCategoryName = targetCategoryName || 'All Articles';
 
     return (
         <div className="max-w-4xl mx-auto">
-            <h1 className="text-3xl font-bold text-slate-100 mb-6">Articles</h1>
+            <h1 className="text-3xl font-bold text-slate-100 mb-6">{currentCategoryName}</h1>
 
-            {/* 分類標籤 */}
-            <div className="flex flex-wrap gap-2 mb-8">
-                {categories.map((category) => (
-                    <button
-                        key={category.id}
-                        onClick={() => handleCategoryClick(category.id)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
-                            selectedCategory === category.id
-                                ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25'
-                                : 'bg-surface border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-200'
-                        }`}
-                    >
-                        {category.name}
-                    </button>
-                ))}
-            </div>
-
-            {/* 文章列表容器 */}
             <div className="space-y-4">
                 {loading ? (
-                    <p className="text-slate-400 text-center py-8">Loading...</p>
+                    <div className="space-y-4">
+                        {[1, 2, 3].map((i) => (
+                            <div
+                                key={i}
+                                className="bg-surface h-48 rounded-lg animate-pulse border border-slate-700"
+                            ></div>
+                        ))}
+                    </div>
                 ) : articles.length > 0 ? (
                     articles.map((article) => <ArticleCard key={article.id} article={article} />)
                 ) : (

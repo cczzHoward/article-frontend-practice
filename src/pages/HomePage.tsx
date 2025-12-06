@@ -15,10 +15,8 @@ const HomePage: React.FC = () => {
     useEffect(() => {
         const fetchArticles = async () => {
             try {
-                // 修改呼叫方式：改為物件參數
                 const response = await getArticles({ page: 1, limit: 10 });
 
-                // 修改資料讀取：response.data.data
                 if (response.success) {
                     setArticles(response.data.data);
                 }
@@ -32,9 +30,6 @@ const HomePage: React.FC = () => {
     }, []);
 
     return (
-        // 修正 Grid：
-        // 1. 移除 md:grid-cols-[240px_1fr] (因為 Layout 已經切好了)
-        // 2. 將 lg:grid-cols-[240px_1fr_300px] 改為 lg:grid-cols-[1fr_300px] (只剩中間和右邊)
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4">
             {/* Main Feed */}
             <main>
@@ -88,6 +83,7 @@ const HomePage: React.FC = () => {
                     <h3 className="font-bold text-slate-200 text-lg mb-4 border-b border-slate-700 pb-2">
                         Active Discussions
                     </h3>
+                    {/* 這邊可以想想要放甚麼，現在是假的東西 */}
                     <ul className="space-y-4">
                         {[1, 2, 3, 4, 5].map((i) => (
                             <li key={i} className="group cursor-pointer">

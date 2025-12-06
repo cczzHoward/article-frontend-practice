@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import Nav from '@app/components/Navbar';
-import Sidebar from '@app/components/Sidebar'; // 修正這裡：componets -> components
+import Sidebar from '@app/components/Sidebar';
 import Footer from '@app/components/Footer';
 
 const Layout = () => {
