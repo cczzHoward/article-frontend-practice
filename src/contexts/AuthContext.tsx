@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode';
 import { login as loginApi, register as registerApi } from '@app/api/auth';
 import type { User } from '@app/types';
 
@@ -25,15 +26,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const token = localStorage.getItem('auth_token');
             if (token) {
                 try {
-                    // 簡化版本：從 localStorage 恢復使用者資訊
-                    // 實際應該呼叫 getCurrentUser() API
-                    const savedUser = localStorage.getItem('auth_user');
-                    if (savedUser) {
-                        setUser(JSON.parse(savedUser));
-                    }
+                    // 從 JWT 解碼使用者資訊
+                    const decoded = jwtDecode<User>(token);
+                    setUser(decoded);
                 } catch (err) {
+                    // Token 無效或過期，清除儲存
                     localStorage.removeItem('auth_token');
-                    localStorage.removeItem('auth_user');
                     setUser(null);
                 }
             }
@@ -49,17 +47,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const response = await loginApi({ username, password });
 
             if (response.success && response.data?.token) {
-                // 儲存 token
-                localStorage.setItem('auth_token', response.data.token);
+                const token = response.data.token;
 
-                // 儲存使用者資訊 (簡化版本，實際應解碼 JWT)
-                const userData: User = {
-                    id: username,
-                    username,
-                    role: 'user',
-                };
-                setUser(userData);
-                localStorage.setItem('auth_user', JSON.stringify(userData));
+                // 儲存 token
+                localStorage.setItem('auth_token', token);
+
+                // 從 JWT 解碼使用者資訊
+                const decoded = jwtDecode<User>(token);
+                setUser(decoded);
             }
         } catch (err: any) {
             let errorMessage = 'Login failed';
@@ -86,17 +81,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const response = await registerApi({ username, password });
 
             if (response.success && response.data?.token) {
-                // 儲存 token
-                localStorage.setItem('auth_token', response.data.token);
+                const token = response.data.token;
 
-                // 儲存使用者資訊
-                const userData: User = {
-                    id: username,
-                    username,
-                    role: 'user',
-                };
-                setUser(userData);
-                localStorage.setItem('auth_user', JSON.stringify(userData));
+                // 儲存 token
+                localStorage.setItem('auth_token', token);
+
+                // 從 JWT 解碼使用者資訊
+                const decoded = jwtDecode<User>(token);
+                setUser(decoded);
             }
         } catch (err: any) {
             const errorMessage = err.response?.data?.message || 'Registration failed';
@@ -109,7 +101,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const logout = () => {
         localStorage.removeItem('auth_token');
-        localStorage.removeItem('auth_user');
         setUser(null);
         setError(null);
     };
