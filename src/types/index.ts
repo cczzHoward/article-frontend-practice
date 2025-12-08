@@ -8,7 +8,7 @@ export interface Category {
 export interface Author {
     id: string;
     username: string;
-    avatar?: string; // Extended for UI
+    avatar?: string;
 }
 
 export interface Article {
@@ -17,10 +17,10 @@ export interface Article {
     content: string;
     author: Author;
     category?: { name: string; id?: string };
-    tags?: string[]; // Extended for UI (Dev.to style tags)
-    cover_image?: string; // Extended for UI
-    likes?: number; // Extended for UI
-    comments_count?: number; // Extended for UI
+    tags?: string[];
+    cover_image?: string;
+    likes?: number;
+    comments_count?: number;
     created_at: string;
     updated_at: string;
 }
@@ -43,4 +43,25 @@ export interface NavItem {
     label: string;
     path: string;
     icon?: React.ReactNode;
+}
+
+// ============ Auth Types ============
+export interface LoginRequest {
+    username: string;
+    password: string;
+}
+
+export interface RegisterRequest {
+    username: string;
+    password: string;
+}
+
+export interface AuthResponse {
+    token: string;
+}
+
+export interface User {
+    id: string;
+    username: string;
+    role: 'admin' | 'user';
 }

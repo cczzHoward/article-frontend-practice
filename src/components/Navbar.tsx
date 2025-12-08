@@ -1,18 +1,30 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '@app/contexts/AuthContext';
 
 const Navbar: React.FC = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
+    const { isAuthenticated, user, logout } = useAuth(); // ← 新增 isAuthenticated 和 logout
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         if (searchQuery.trim()) {
-            navigate(`/articles?search=${encodeURIComponent(searchQuery)}`);
+            navigate(`/articles?keyword=${encodeURIComponent(searchQuery)}`);
             setIsMobileMenuOpen(false);
         }
+    };
+
+    const handleLogout = async () => {
+        setIsLoggingOut(true);
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        logout();
+        navigate('/');
+        setIsMobileMenuOpen(false);
+        setIsLoggingOut(false);
     };
 
     const isActive = (path: string) => location.pathname === path;
@@ -29,7 +41,7 @@ const Navbar: React.FC = () => {
                         DevFlow
                     </Link>
 
-                    {/* Desktop Links - 替換 .navbar-links */}
+                    {/* Desktop Links */}
                     <div className="hidden md:flex items-center gap-6">
                         {[
                             { label: 'Home', path: '/' },
@@ -64,18 +76,39 @@ const Navbar: React.FC = () => {
 
                     {/* Auth Buttons */}
                     <div className="hidden md:flex items-center gap-3">
-                        <Link
-                            to="/login"
-                            className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
-                        >
-                            Log in
-                        </Link>
-                        <Link
-                            to="/register"
-                            className="rounded-md bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90"
-                        >
-                            Create account
-                        </Link>
+                        {isAuthenticated ? (
+                            <>
+                                <span className="text-sm font-medium text-slate-300">
+                                    {user?.username}
+                                </span>
+                                <button
+                                    onClick={handleLogout}
+                                    disabled={isLoggingOut}
+                                    className={`text-sm font-medium transition-colors ${
+                                        isLoggingOut
+                                            ? 'text-red-400 opacity-50 cursor-not-allowed'
+                                            : 'text-slate-300 hover:text-primary cursor-pointer'
+                                    }`}
+                                >
+                                    {isLoggingOut ? 'Logging out...' : 'Log out'}
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <Link
+                                    to="/login"
+                                    className="text-sm font-medium text-slate-300 hover:text-primary transition-colors"
+                                >
+                                    Log in
+                                </Link>
+                                <Link
+                                    to="/register"
+                                    className="rounded-md bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90"
+                                >
+                                    Create account
+                                </Link>
+                            </>
+                        )}
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -122,22 +155,52 @@ const Navbar: React.FC = () => {
                         />
                     </form>
                     <div className="flex flex-col gap-2">
-                        <Link to="/" className="block py-2 text-slate-300 hover:text-primary">
+                        <Link
+                            to="/"
+                            className="block py-2 text-sm text-slate-300 hover:text-primary"
+                        >
                             Home
                         </Link>
                         <Link
                             to="/articles"
-                            className="block py-2 text-slate-300 hover:text-primary"
+                            className="block py-2 text-sm text-slate-300 hover:text-primary"
                         >
                             Articles
                         </Link>
                         <hr className="border-slate-700 my-2" />
-                        <Link to="/login" className="block py-2 text-slate-300 hover:text-white">
-                            Log in
-                        </Link>
-                        <Link to="/register" className="block py-2 text-primary font-bold">
-                            Create account
-                        </Link>
+                        {isAuthenticated ? (
+                            <>
+                                <span className="block py-2 text-sm text-slate-300">
+                                    {user?.username}
+                                </span>
+                                <button
+                                    onClick={handleLogout}
+                                    disabled={isLoggingOut}
+                                    className={`block py-2 text-sm font-medium transition-colors cursor-pointer ${
+                                        isLoggingOut
+                                            ? 'text-red-400 opacity-50 cursor-not-allowed'
+                                            : 'text-slate-300 hover:text-primary'
+                                    }`}
+                                >
+                                    {isLoggingOut ? 'Logging out...' : 'Log out'}
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <Link
+                                    to="/login"
+                                    className="block py-2 text-sm text-slate-300 hover:text-primary"
+                                >
+                                    Log in
+                                </Link>
+                                <Link
+                                    to="/register"
+                                    className="block py-2 text-sm text-primary font-bold"
+                                >
+                                    Create account
+                                </Link>
+                            </>
+                        )}
                     </div>
                 </div>
             )}
