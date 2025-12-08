@@ -1,17 +1,20 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getArticleById, getCategories, updateArticle } from '@app/api/article';
+import { useAuth } from '@app/contexts/AuthContext';
 import ArticleForm, { type ArticleFormValues } from '@app/components/ArticleForm';
 import type { Article, Category } from '@app/types';
 
 const EditArticlePage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const { user } = useAuth();
 
     const [article, setArticle] = useState<Article | null>(null);
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [permissionError, setPermissionError] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -47,6 +50,23 @@ const EditArticlePage: React.FC = () => {
         fetchData();
     }, [id]);
 
+    // 權限檢查：文章載入後檢查當前使用者是否為作者
+    useEffect(() => {
+        if (article && user) {
+            const isAuthor =
+                user.id === article.author?.id || user.username === article.author?.username;
+
+            if (!isAuthor) {
+                setPermissionError(true);
+                // 3 秒後導回文章詳情頁（不用 replace，讓編輯頁留在歷史中）
+                const timer = setTimeout(() => {
+                    navigate(`/articles/${id}`);
+                }, 3000);
+                return () => clearTimeout(timer);
+            }
+        }
+    }, [article, user, id, navigate]);
+
     const draftKey = useMemo(() => (id ? `article_draft_edit_${id}` : 'article_draft_edit'), [id]);
 
     const initialValues = useMemo(() => {
@@ -70,6 +90,8 @@ const EditArticlePage: React.FC = () => {
         const payload = { title: values.title, content: values.content };
         const response = await updateArticle(id, payload);
         if (response.success) {
+            // 清除草稿
+            localStorage.removeItem(draftKey);
             navigate(`/articles/${id}`);
             return;
         }
@@ -78,7 +100,7 @@ const EditArticlePage: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="space-y-4">
+            <div className="max-w-3xl mx-auto space-y-4">
                 {[1, 2].map((i) => (
                     <div
                         key={i}
@@ -89,16 +111,30 @@ const EditArticlePage: React.FC = () => {
         );
     }
 
+    // 權限錯誤提示
+    if (permissionError) {
+        return (
+            <div className="max-w-3xl mx-auto">
+                <div className="bg-red-900/20 border border-red-700 text-red-400 px-4 py-3 rounded-lg">
+                    <p className="font-medium">You do not have permission to edit this article.</p>
+                    <p className="text-sm mt-2">Redirecting to article page in 3 seconds...</p>
+                </div>
+            </div>
+        );
+    }
+
     if (error) {
         return (
-            <div className="bg-red-900/20 border border-red-700 text-red-400 px-4 py-3 rounded-lg">
-                {error}
+            <div className="max-w-3xl mx-auto">
+                <div className="bg-red-900/20 border border-red-700 text-red-400 px-4 py-3 rounded-lg">
+                    {error}
+                </div>
             </div>
         );
     }
 
     if (!article) {
-        return <div className="text-slate-400">Article not found.</div>;
+        return <div className="max-w-3xl mx-auto text-slate-400">Article not found.</div>;
     }
 
     return (
