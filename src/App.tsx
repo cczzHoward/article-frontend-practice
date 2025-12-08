@@ -7,6 +7,8 @@ import ArticleListPage from '@app/pages/ArticleListPage';
 import ArticleDetailPage from '@app/pages/ArticleDetailPage';
 import LoginPage from '@app/pages/LoginPage';
 import RegisterPage from '@app/pages/RegisterPage';
+import CreateArticlePage from '@app/pages/CreateArticlePage';
+import EditArticlePage from '@app/pages/EditArticlePage';
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -32,6 +34,22 @@ const AppRoutes: React.FC = () => {
                 <Route index element={<HomePage />} />
                 <Route path="articles" element={<ArticleListPage />} />
                 <Route path="articles/:id" element={<ArticleDetailPage />} />
+                <Route
+                    path="articles/create"
+                    element={
+                        <ProtectedRoute>
+                            <CreateArticlePage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="articles/:id/edit"
+                    element={
+                        <ProtectedRoute>
+                            <EditArticlePage />
+                        </ProtectedRoute>
+                    }
+                />
             </Route>
         </Routes>
     );

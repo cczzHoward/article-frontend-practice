@@ -18,6 +18,8 @@ const Navbar: React.FC = () => {
         }
     };
 
+    const closeMobileMenu = () => setIsMobileMenuOpen(false);
+
     const handleLogout = async () => {
         setIsLoggingOut(true);
         await new Promise((resolve) => setTimeout(resolve, 300));
@@ -78,6 +80,12 @@ const Navbar: React.FC = () => {
                     <div className="hidden md:flex items-center gap-3">
                         {isAuthenticated ? (
                             <>
+                                <Link
+                                    to="/articles/create"
+                                    className="rounded-md bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90"
+                                >
+                                    Publish
+                                </Link>
                                 <span className="text-sm font-medium text-slate-300">
                                     {user?.username}
                                 </span>
@@ -167,6 +175,15 @@ const Navbar: React.FC = () => {
                         >
                             Articles
                         </Link>
+                        {isAuthenticated && (
+                            <Link
+                                to="/articles/create"
+                                onClick={closeMobileMenu}
+                                className="block py-2 text-sm text-primary font-bold"
+                            >
+                                Publish
+                            </Link>
+                        )}
                         <hr className="border-slate-700 my-2" />
                         {isAuthenticated ? (
                             <>

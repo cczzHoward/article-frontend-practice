@@ -1,5 +1,12 @@
 import axios from 'axios';
-import type { ApiResponse, Article, ArticleListResponseData, Category } from '@app/types';
+import type {
+    ApiResponse,
+    Article,
+    ArticleListResponseData,
+    Category,
+    CreateArticleRequest,
+    UpdateArticleRequest,
+} from '@app/types';
 
 // 遞迴將 MongoDB 的 _id 映射為 id
 const normalizeId = (data: any): any => {
@@ -21,7 +28,14 @@ const apiClient = axios.create({
     headers: { 'Content-Type': 'application/json' },
 });
 
-// Interceptor: 自動解包 response.data 並處理 ID
+apiClient.interceptors.request.use((config) => {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
+
 apiClient.interceptors.response.use(
     (response) => normalizeId(response.data),
     (error) => Promise.reject(error)
@@ -42,4 +56,15 @@ export const getArticleById = (id: string): Promise<ApiResponse<Article>> => {
 
 export const getCategories = (): Promise<ApiResponse<Category[]>> => {
     return apiClient.get('/categories/list');
+};
+
+export const createArticle = (payload: CreateArticleRequest): Promise<ApiResponse<Article>> => {
+    return apiClient.post('/articles', payload);
+};
+
+export const updateArticle = (
+    id: string,
+    payload: UpdateArticleRequest
+): Promise<ApiResponse<Article>> => {
+    return apiClient.patch(`/articles/${id}`, payload);
 };

@@ -65,3 +65,15 @@ export interface User {
     username: string;
     role: 'admin' | 'user';
 }
+
+// ============ Article Mutation Types ============
+export interface CreateArticleRequest {
+    title: string;
+    content: string;
+    category: string; // backend expects category name
+}
+
+export interface UpdateArticleRequest {
+    title?: string;
+    content?: string;
+}
