@@ -6,8 +6,12 @@ import Footer from '@app/components/Footer';
 const Layout = () => {
     const location = useLocation();
 
+    // 判斷是否隱藏 Sidebar
+    // 1. 文章詳情、編輯、新增頁面 (/articles/xxx)
+    // 2. 個人頁面 (/profile)
     const shouldHideSidebar =
-        location.pathname.startsWith('/articles/') && location.pathname !== '/articles';
+        (location.pathname.startsWith('/articles/') && location.pathname !== '/articles') ||
+        location.pathname === '/profile';
 
     return (
         <div className="min-h-screen flex flex-col bg-background">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import type { Article } from '../types';
 
 interface ArticleCardProps {
@@ -8,6 +8,8 @@ interface ArticleCardProps {
 }
 
 const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFirst = false }) => {
+    const navigate = useNavigate();
+
     // 格式化日期
     const dateStr = new Date(article.created_at).toLocaleDateString('en-US', {
         month: 'short',
@@ -17,8 +19,20 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFirst = false }) =
     // 預設頭像 (如果沒有 avatar)
     const defaultAvatar = `https://ui-avatars.com/api/?name=${article.author.username}&background=random`;
 
+    // 處理卡片點擊
+    const handleCardClick = (e: React.MouseEvent) => {
+        // 如果使用者點擊的是卡片內部的連結 (a) 或按鈕 (button)，則不觸發卡片整體的跳轉
+        if ((e.target as HTMLElement).closest('a') || (e.target as HTMLElement).closest('button')) {
+            return;
+        }
+        navigate(`/articles/${article.id}`);
+    };
+
     return (
-        <div className="group mb-4 overflow-hidden rounded-lg border border-slate-700 bg-surface transition-colors hover:border-slate-500">
+        <div
+            onClick={handleCardClick}
+            className="group mb-4 overflow-hidden rounded-lg border border-slate-700 bg-surface transition-all hover:border-slate-500 hover:shadow-lg cursor-pointer hover:bg-slate-800/30"
+        >
             {/* Cover Image (Only for first item or if exists) */}
             {article.cover_image && (
                 <Link to={`/articles/${article.id}`} className="block h-64 w-full overflow-hidden">
