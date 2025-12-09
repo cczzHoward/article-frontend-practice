@@ -1,80 +1,232 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@app/contexts/AuthContext';
 import { getArticles } from '@app/api/article';
+import { changePassword } from '@app/api/auth';
 import ArticleCard from '@app/components/ArticleCard';
 import type { Article } from '@app/types';
 
+type Tab = 'articles' | 'settings';
+
 const ProfilePage: React.FC = () => {
     const { user } = useAuth();
+    const [activeTab, setActiveTab] = useState<Tab>('articles');
+
+    // --- Articles Logic ---
     const [articles, setArticles] = useState<Article[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [loadingArticles, setLoadingArticles] = useState(false);
+    const [articleError, setArticleError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchMyArticles = async () => {
-            if (!user) return;
+            if (!user || activeTab !== 'articles') return;
             try {
-                setLoading(true);
+                setLoadingArticles(true);
+                // 注意：這裡依賴後端支援 author 篩選參數
                 const response = await getArticles({ author: user.id });
                 if (response.success) {
                     setArticles(response.data.data);
                 }
             } catch (err) {
                 console.error('Failed to fetch articles', err);
-                setError('無法載入文章');
+                setArticleError('無法載入文章');
             } finally {
-                setLoading(false);
+                setLoadingArticles(false);
             }
         };
 
         fetchMyArticles();
-    }, [user]);
+    }, [user, activeTab]);
+
+    // --- Settings Logic ---
+    const [passwordForm, setPasswordForm] = useState({
+        oldPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+    });
+    const [settingsMsg, setSettingsMsg] = useState({ type: '', text: '' });
+    const [loadingSettings, setLoadingSettings] = useState(false);
+
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPasswordForm({ ...passwordForm, [e.target.name]: e.target.value });
+    };
+
+    const handlePasswordSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setSettingsMsg({ type: '', text: '' });
+
+        if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+            setSettingsMsg({ type: 'error', text: '新密碼與確認密碼不符' });
+            return;
+        }
+
+        try {
+            setLoadingSettings(true);
+            const response = await changePassword({
+                oldPassword: passwordForm.oldPassword,
+                newPassword: passwordForm.newPassword,
+            });
+            if (response.success) {
+                setSettingsMsg({ type: 'success', text: '密碼修改成功！' });
+                setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' });
+            }
+        } catch (err: any) {
+            setSettingsMsg({
+                type: 'error',
+                text: err.response?.data?.message || '修改失敗，請檢查舊密碼是否正確',
+            });
+        } finally {
+            setLoadingSettings(false);
+        }
+    };
 
     if (!user) {
         return <div className="text-white text-center mt-10">請先登入</div>;
     }
 
     return (
-        <div className="max-w-4xl mx-auto">
-            {/* Profile Header */}
-            <div className="bg-surface border border-slate-700 rounded-lg p-8 mb-8 flex items-center gap-6">
-                <div className="h-24 w-24 rounded-full bg-primary/20 flex items-center justify-center text-3xl font-bold text-primary border-2 border-primary">
-                    {user.username.charAt(0).toUpperCase()}
-                </div>
-                <div>
-                    <h1 className="text-3xl font-bold text-white mb-2">{user.username}</h1>
-                    <div className="flex gap-4 text-slate-400 text-sm">
-                        <span className="bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
-                            {user.role === 'admin' ? '管理員' : '一般會員'}
-                        </span>
-                        <span className="flex items-center">
-                            <span className="font-bold text-white mr-1">{articles.length}</span>{' '}
-                            篇文章
-                        </span>
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-[240px_1fr] gap-8">
+            {/* Left Sidebar (Profile Navigation) */}
+            <aside className="space-y-2">
+                <div className="bg-surface border border-slate-700 rounded-lg p-4 mb-4">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold border border-primary">
+                            {user.username.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="overflow-hidden">
+                            <div className="font-bold text-white truncate">{user.username}</div>
+                            <div className="text-xs text-slate-400">
+                                {user.role === 'admin' ? 'Administrator' : 'User'}
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Articles List */}
-            <h2 className="text-xl font-bold text-white mb-4 border-l-4 border-primary pl-3">
-                我的文章
-            </h2>
+                <nav className="flex flex-col space-y-1">
+                    <button
+                        onClick={() => setActiveTab('articles')}
+                        className={`cursor-pointer text-left px-4 py-2 rounded-md transition-colors ${
+                            activeTab === 'articles'
+                                ? 'bg-primary text-white font-medium'
+                                : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+                        }`}
+                    >
+                        我的文章
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('settings')}
+                        className={`cursor-pointer text-left px-4 py-2 rounded-md transition-colors ${
+                            activeTab === 'settings'
+                                ? 'bg-primary text-white font-medium'
+                                : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+                        }`}
+                    >
+                        設定
+                    </button>
+                </nav>
+            </aside>
 
-            {loading ? (
-                <div className="text-slate-400 text-center py-10">載入中...</div>
-            ) : error ? (
-                <div className="text-red-400 text-center py-10">{error}</div>
-            ) : articles.length === 0 ? (
-                <div className="text-slate-400 text-center py-10 bg-surface/50 rounded-lg border border-slate-800 border-dashed">
-                    尚未發布任何文章
-                </div>
-            ) : (
-                <div className="grid gap-4">
-                    {articles.map((article) => (
-                        <ArticleCard key={article.id} article={article} />
-                    ))}
-                </div>
-            )}
+            {/* Right Content Area */}
+            <main>
+                {activeTab === 'articles' && (
+                    <div className="space-y-6">
+                        <h2 className="text-2xl font-bold text-white border-b border-slate-700 pb-4">
+                            我的文章 ({articles.length})
+                        </h2>
+
+                        {loadingArticles ? (
+                            <div className="text-slate-400 text-center py-10">載入中...</div>
+                        ) : articleError ? (
+                            <div className="text-red-400 text-center py-10">{articleError}</div>
+                        ) : articles.length === 0 ? (
+                            <div className="text-slate-400 text-center py-10 bg-surface/50 rounded-lg border border-slate-800 border-dashed">
+                                尚未發布任何文章
+                            </div>
+                        ) : (
+                            <div className="grid gap-4">
+                                {articles.map((article) => (
+                                    <ArticleCard key={article.id} article={article} />
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {activeTab === 'settings' && (
+                    <div className="max-w-xl">
+                        <h2 className="text-2xl font-bold text-white border-b border-slate-700 pb-4 mb-6">
+                            帳號設定
+                        </h2>
+
+                        <div className="bg-surface border border-slate-700 rounded-lg p-6">
+                            <h3 className="text-lg font-medium text-white mb-4">變更密碼</h3>
+
+                            {settingsMsg.text && (
+                                <div
+                                    className={`mb-4 px-4 py-2 rounded text-sm ${
+                                        settingsMsg.type === 'error'
+                                            ? 'bg-red-900/20 text-red-400 border border-red-800'
+                                            : 'bg-green-900/20 text-green-400 border border-green-800'
+                                    }`}
+                                >
+                                    {settingsMsg.text}
+                                </div>
+                            )}
+
+                            <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-300 mb-1">
+                                        目前密碼
+                                    </label>
+                                    <input
+                                        type="password"
+                                        name="oldPassword"
+                                        required
+                                        value={passwordForm.oldPassword}
+                                        onChange={handlePasswordChange}
+                                        className="w-full bg-background border border-slate-600 rounded px-3 py-2 text-white focus:outline-none focus:border-primary"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-300 mb-1">
+                                        新密碼
+                                    </label>
+                                    <input
+                                        type="password"
+                                        name="newPassword"
+                                        required
+                                        value={passwordForm.newPassword}
+                                        onChange={handlePasswordChange}
+                                        className="w-full bg-background border border-slate-600 rounded px-3 py-2 text-white focus:outline-none focus:border-primary"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-300 mb-1">
+                                        確認新密碼
+                                    </label>
+                                    <input
+                                        type="password"
+                                        name="confirmPassword"
+                                        required
+                                        value={passwordForm.confirmPassword}
+                                        onChange={handlePasswordChange}
+                                        className="w-full bg-background border border-slate-600 rounded px-3 py-2 text-white focus:outline-none focus:border-primary"
+                                    />
+                                </div>
+
+                                <div className="pt-2">
+                                    <button
+                                        type="submit"
+                                        disabled={loadingSettings}
+                                        className="cursor-pointer bg-primary hover:bg-primary/90 text-white font-bold py-2 px-4 rounded transition-colors disabled:opacity-50"
+                                    >
+                                        {loadingSettings ? '更新中...' : '更新密碼'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+            </main>
         </div>
     );
 };

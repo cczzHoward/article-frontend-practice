@@ -47,3 +47,8 @@ export const logout = (): void => {
     localStorage.removeItem('auth_token');
     window.location.href = '/login';
 };
+
+// 變更密碼
+export const changePassword = (data: any): Promise<ApiResponse<void>> => {
+    return apiClient.post('/users/change-password', data);
+};
