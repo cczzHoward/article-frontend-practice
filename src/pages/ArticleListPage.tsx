@@ -116,7 +116,7 @@ const ArticleListPage: React.FC = () => {
 
             <div className="space-y-4">
                 {loading ? (
-                    <Skeleton count={3} height="12rem" />
+                    <Skeleton count={3} height="h-48" />
                 ) : articles.length > 0 ? (
                     <>
                         {articles.map((article) => (
