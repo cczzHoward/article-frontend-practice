@@ -106,16 +106,40 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFirst = false }) =
                 {/* Footer Meta: Reactions & Comments */}
                 <div className="flex items-center justify-between text-sm text-slate-400">
                     <div className="flex gap-4">
-                        <button className="flex items-center gap-1 rounded px-2 py-1 transition-colors hover:bg-slate-700/50 hover:text-slate-200">
-                            <span>❤️</span>
+                        <button className="flex items-center gap-2 rounded px-2 py-1 transition-colors hover:bg-slate-700/50 hover:text-slate-200 group/btn">
+                            <svg
+                                className="w-4 h-4 transition-colors group-hover/btn:text-red-400 -translate-y-[1px]"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={1.5}
+                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                                />
+                            </svg>
                             <span>{article.likes || 0} Reactions</span>
                         </button>
                         <Link
                             to={`/articles/${article.id}#comments`}
                             state={{ from: location.pathname }}
-                            className="flex items-center gap-1 rounded px-2 py-1 transition-colors hover:bg-slate-700/50 hover:text-slate-200"
+                            className="flex items-center gap-2 rounded px-2 py-1 transition-colors hover:bg-slate-700/50 hover:text-slate-200 group/btn"
                         >
-                            <span>💬</span>
+                            <svg
+                                className="w-4 h-4 transition-colors group-hover/btn:text-primary -translate-y-[1px]"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={1.5}
+                                    d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
+                                />
+                            </svg>
                             <span>{article.comments_count || 0} Comments</span>
                         </Link>
                     </div>
