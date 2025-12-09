@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import type { Article } from '../types';
 
 interface ArticleCardProps {
@@ -9,6 +9,7 @@ interface ArticleCardProps {
 
 const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFirst = false }) => {
     const navigate = useNavigate();
+    const location = useLocation();
 
     // 格式化日期
     const dateStr = new Date(article.created_at).toLocaleDateString('en-US', {
@@ -25,7 +26,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFirst = false }) =
         if ((e.target as HTMLElement).closest('a') || (e.target as HTMLElement).closest('button')) {
             return;
         }
-        navigate(`/articles/${article.id}`);
+        navigate(`/articles/${article.id}`, { state: { from: location.pathname } });
     };
 
     return (
@@ -35,7 +36,11 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFirst = false }) =
         >
             {/* Cover Image (Only for first item or if exists) */}
             {article.cover_image && (
-                <Link to={`/articles/${article.id}`} className="block h-64 w-full overflow-hidden">
+                <Link
+                    to={`/articles/${article.id}`}
+                    state={{ from: location.pathname }}
+                    className="block h-64 w-full overflow-hidden"
+                >
                     <img
                         src={article.cover_image}
                         alt={article.title}
@@ -65,6 +70,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFirst = false }) =
                 {/* Title */}
                 <Link
                     to={`/articles/${article.id}`}
+                    state={{ from: location.pathname }}
                     className="block transition-colors group-hover:text-primary"
                 >
                     <h2
@@ -106,6 +112,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFirst = false }) =
                         </button>
                         <Link
                             to={`/articles/${article.id}#comments`}
+                            state={{ from: location.pathname }}
                             className="flex items-center gap-1 rounded px-2 py-1 transition-colors hover:bg-slate-700/50 hover:text-slate-200"
                         >
                             <span>💬</span>

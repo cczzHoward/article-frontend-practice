@@ -4,6 +4,9 @@ import { getArticles } from '@app/api/article';
 import { changePassword } from '@app/api/auth';
 import ArticleCard from '@app/components/ArticleCard';
 import type { Article } from '@app/types';
+import Alert from '@app/components/ui/Alert';
+import Input from '@app/components/ui/Input';
+import Skeleton from '@app/components/ui/Skeleton';
 
 type Tab = 'articles' | 'settings';
 
@@ -134,9 +137,9 @@ const ProfilePage: React.FC = () => {
                         </h2>
 
                         {loadingArticles ? (
-                            <div className="text-slate-400 text-center py-10">載入中...</div>
+                            <Skeleton count={3} />
                         ) : articleError ? (
-                            <div className="text-red-400 text-center py-10">{articleError}</div>
+                            <Alert message={articleError} />
                         ) : articles.length === 0 ? (
                             <div className="text-slate-400 text-center py-10 bg-surface/50 rounded-lg border border-slate-800 border-dashed">
                                 尚未發布任何文章
@@ -161,57 +164,37 @@ const ProfilePage: React.FC = () => {
                             <h3 className="text-lg font-medium text-white mb-4">變更密碼</h3>
 
                             {settingsMsg.text && (
-                                <div
-                                    className={`mb-4 px-4 py-2 rounded text-sm ${
-                                        settingsMsg.type === 'error'
-                                            ? 'bg-red-900/20 text-red-400 border border-red-800'
-                                            : 'bg-green-900/20 text-green-400 border border-green-800'
-                                    }`}
-                                >
-                                    {settingsMsg.text}
-                                </div>
+                                <Alert
+                                    type={settingsMsg.type as 'error' | 'success'}
+                                    message={settingsMsg.text}
+                                />
                             )}
 
                             <form onSubmit={handlePasswordSubmit} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-300 mb-1">
-                                        目前密碼
-                                    </label>
-                                    <input
-                                        type="password"
-                                        name="oldPassword"
-                                        required
-                                        value={passwordForm.oldPassword}
-                                        onChange={handlePasswordChange}
-                                        className="w-full bg-background border border-slate-600 rounded px-3 py-2 text-white focus:outline-none focus:border-primary"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-300 mb-1">
-                                        新密碼
-                                    </label>
-                                    <input
-                                        type="password"
-                                        name="newPassword"
-                                        required
-                                        value={passwordForm.newPassword}
-                                        onChange={handlePasswordChange}
-                                        className="w-full bg-background border border-slate-600 rounded px-3 py-2 text-white focus:outline-none focus:border-primary"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-300 mb-1">
-                                        確認新密碼
-                                    </label>
-                                    <input
-                                        type="password"
-                                        name="confirmPassword"
-                                        required
-                                        value={passwordForm.confirmPassword}
-                                        onChange={handlePasswordChange}
-                                        className="w-full bg-background border border-slate-600 rounded px-3 py-2 text-white focus:outline-none focus:border-primary"
-                                    />
-                                </div>
+                                <Input
+                                    label="目前密碼"
+                                    type="password"
+                                    name="oldPassword"
+                                    required
+                                    value={passwordForm.oldPassword}
+                                    onChange={handlePasswordChange}
+                                />
+                                <Input
+                                    label="新密碼"
+                                    type="password"
+                                    name="newPassword"
+                                    required
+                                    value={passwordForm.newPassword}
+                                    onChange={handlePasswordChange}
+                                />
+                                <Input
+                                    label="確認新密碼"
+                                    type="password"
+                                    name="confirmPassword"
+                                    required
+                                    value={passwordForm.confirmPassword}
+                                    onChange={handlePasswordChange}
+                                />
 
                                 <div className="pt-2">
                                     <button

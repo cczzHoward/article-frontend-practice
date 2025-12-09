@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@app/contexts/AuthContext';
+import Input from '@app/components/ui/Input';
+import Alert from '@app/components/ui/Alert';
 
 const LoginPage: React.FC = () => {
     const [username, setUsername] = useState('');
@@ -39,47 +41,33 @@ const LoginPage: React.FC = () => {
                     <h1 className="text-3xl font-bold text-slate-100 mb-2">DevFlow</h1>
                     <p className="text-slate-400 mb-8">Login to your account</p>
 
-                    {error && (
-                        <div className="bg-red-900/20 border border-red-700 text-red-400 px-4 py-3 rounded-lg mb-6">
-                            {error}
-                        </div>
-                    )}
+                    {error && <Alert type="error" message={error} className="mb-6" />}
 
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-slate-300 mb-2">
-                                Username
-                            </label>
-                            <input
-                                type="text"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                                className="w-full px-4 py-2 border border-slate-600 rounded-lg bg-slate-800 text-slate-100 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                                placeholder="Enter your username"
-                                disabled={isLoading}
-                                required
-                            />
-                        </div>
+                        <Input
+                            label="Username"
+                            type="text"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            placeholder="Enter your username"
+                            disabled={isLoading}
+                            required
+                        />
 
-                        <div>
-                            <label className="block text-sm font-medium text-slate-300 mb-2">
-                                Password
-                            </label>
-                            <input
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full px-4 py-2 border border-slate-600 rounded-lg bg-slate-800 text-slate-100 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                                placeholder="Enter your password"
-                                disabled={isLoading}
-                                required
-                            />
-                        </div>
+                        <Input
+                            label="Password"
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Enter your password"
+                            disabled={isLoading}
+                            required
+                        />
 
                         <button
                             type="submit"
                             disabled={isLoading || !username || !password}
-                            className="w-full bg-primary hover:bg-primary/90 disabled:bg-slate-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+                            className="w-full bg-primary hover:bg-primary/90 disabled:bg-slate-700 text-white font-bold py-2 px-4 rounded-lg transition-colors cursor-pointer"
                         >
                             {isLoading ? 'Logging in...' : 'Log in'}
                         </button>

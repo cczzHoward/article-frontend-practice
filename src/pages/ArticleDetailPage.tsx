@@ -1,16 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { getArticleById } from '@app/api/article';
 import { useAuth } from '@app/contexts/AuthContext';
 import type { Article } from '@app/types';
+import Skeleton from '@app/components/ui/Skeleton';
+import Alert from '@app/components/ui/Alert';
 
 const ArticleDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
     const { user } = useAuth();
     const [article, setArticle] = useState<Article | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+
+    // 判斷來源頁面
+    const fromPath = (location.state as any)?.from;
+    const isFromProfile = fromPath === '/profile';
+    const backLink = isFromProfile ? '/profile' : '/articles';
+    const backText = isFromProfile ? 'Back to profile' : 'Back to list';
 
     useEffect(() => {
         const fetchArticle = async () => {
@@ -49,17 +58,32 @@ const ArticleDetailPage: React.FC = () => {
         </svg>
     );
 
-    if (loading) return <div className="text-center py-20 text-slate-400">Loading...</div>;
-    if (error) return <div className="text-center py-20 text-red-400">{error}</div>;
-    if (!article) return <div className="text-center py-20 text-slate-400">文章不存在</div>;
+    if (loading)
+        return (
+            <div className="max-w-4xl mx-auto mt-8">
+                <Skeleton count={1} height="h-96" />
+            </div>
+        );
+    if (error)
+        return (
+            <div className="max-w-4xl mx-auto mt-8">
+                <Alert message={error} />
+            </div>
+        );
+    if (!article)
+        return (
+            <div className="max-w-4xl mx-auto mt-8">
+                <Alert message="文章不存在" />
+            </div>
+        );
 
     return (
         <div className="max-w-4xl mx-auto mt-8">
             <button
-                onClick={() => navigate('/articles')}
+                onClick={() => navigate(backLink)}
                 className="mb-6 text-sm text-slate-400 hover:text-primary transition-colors flex items-center gap-1"
             >
-                ← Back to list
+                ← {backText}
             </button>
 
             <article className="bg-surface border border-slate-700 rounded-xl p-8 shadow-sm">

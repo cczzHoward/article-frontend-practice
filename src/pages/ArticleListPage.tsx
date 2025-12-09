@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { getArticles, getCategories } from '@app/api/article';
 import ArticleCard from '@app/components/ArticleCard';
 import Pagination from '@app/components/Pagination';
+import Skeleton from '@app/components/ui/Skeleton';
 import type { Category, Article } from '@app/types';
 
 const ArticleListPage: React.FC = () => {
@@ -115,14 +116,7 @@ const ArticleListPage: React.FC = () => {
 
             <div className="space-y-4">
                 {loading ? (
-                    <div className="space-y-4">
-                        {[1, 2, 3].map((i) => (
-                            <div
-                                key={i}
-                                className="bg-surface h-48 rounded-lg animate-pulse border border-slate-700"
-                            ></div>
-                        ))}
-                    </div>
+                    <Skeleton count={3} height="12rem" />
                 ) : articles.length > 0 ? (
                     <>
                         {articles.map((article) => (
