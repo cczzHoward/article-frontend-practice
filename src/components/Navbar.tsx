@@ -86,9 +86,12 @@ const Navbar: React.FC = () => {
                                 >
                                     Publish
                                 </Link>
-                                <span className="text-sm font-medium text-slate-300">
+                                <Link
+                                    to="/profile"
+                                    className="text-sm font-medium text-slate-300 hover:text-primary"
+                                >
                                     {user?.username}
-                                </span>
+                                </Link>
                                 <button
                                     onClick={handleLogout}
                                     disabled={isLoggingOut}

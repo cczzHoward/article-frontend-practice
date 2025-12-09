@@ -46,6 +46,7 @@ export const getArticles = (params?: {
     page?: number;
     limit?: number;
     category?: string; // 注意：後端接收的是分類名稱 (name)
+    author?: string;
 }): Promise<ApiResponse<ArticleListResponseData>> => {
     return apiClient.get('/articles/list', { params });
 };

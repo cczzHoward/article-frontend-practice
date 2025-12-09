@@ -9,6 +9,7 @@ import LoginPage from '@app/pages/LoginPage';
 import RegisterPage from '@app/pages/RegisterPage';
 import CreateArticlePage from '@app/pages/CreateArticlePage';
 import EditArticlePage from '@app/pages/EditArticlePage';
+import ProfilePage from '@app/pages/ProfilePage';
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -47,6 +48,14 @@ const AppRoutes: React.FC = () => {
                     element={
                         <ProtectedRoute>
                             <EditArticlePage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="profile"
+                    element={
+                        <ProtectedRoute>
+                            <ProfilePage />
                         </ProtectedRoute>
                     }
                 />
