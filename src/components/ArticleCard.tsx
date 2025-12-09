@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '@app/contexts/AuthContext';
+import { likeArticle, unlikeArticle } from '@app/api/article';
 import type { Article } from '../types';
 
 interface ArticleCardProps {
@@ -10,6 +12,46 @@ interface ArticleCardProps {
 const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFirst = false }) => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { user } = useAuth();
+    const [isLiked, setIsLiked] = useState(false);
+    const [likesCount, setLikesCount] = useState(0);
+
+    useEffect(() => {
+        if (user && article.likedBy) {
+            setIsLiked(article.likedBy.includes(user.id));
+        }
+        setLikesCount(article.likes_count || article.likes || 0);
+    }, [article, user]);
+
+    const handleLike = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!user) {
+            alert('Please login to like this article');
+            return;
+        }
+
+        const prevIsLiked = isLiked;
+        const prevLikesCount = likesCount;
+
+        // Optimistic update
+        setIsLiked(!prevIsLiked);
+        setLikesCount(prevIsLiked ? prevLikesCount - 1 : prevLikesCount + 1);
+
+        try {
+            if (prevIsLiked) {
+                await unlikeArticle(article.id);
+            } else {
+                await likeArticle(article.id);
+            }
+        } catch (error) {
+            // Revert on error
+            setIsLiked(prevIsLiked);
+            setLikesCount(prevLikesCount);
+            console.error('Failed to update like status', error);
+        }
+    };
 
     // 格式化日期
     const dateStr = new Date(article.created_at).toLocaleDateString('en-US', {
@@ -106,21 +148,40 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, isFirst = false }) =
                 {/* Footer Meta: Reactions & Comments */}
                 <div className="flex items-center justify-between text-sm text-slate-400">
                     <div className="flex gap-4">
-                        <button className="flex items-center gap-2 rounded px-2 py-1 transition-colors hover:bg-slate-700/50 hover:text-slate-200 group/btn">
-                            <svg
-                                className="w-4 h-4 transition-colors group-hover/btn:text-red-400 -translate-y-[1px]"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={1.5}
-                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                                />
-                            </svg>
-                            <span>{article.likes || 0} Reactions</span>
+                        <button
+                            onClick={handleLike}
+                            className={`flex items-center gap-2 rounded px-2 py-1 transition-colors hover:bg-slate-700/50 group/btn ${
+                                isLiked ? 'text-red-400' : 'hover:text-slate-200'
+                            }`}
+                        >
+                            {isLiked ? (
+                                <svg
+                                    className="w-4 h-4 -translate-y-[1px]"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                >
+                                    <path
+                                        fillRule="evenodd"
+                                        d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                                        clipRule="evenodd"
+                                    />
+                                </svg>
+                            ) : (
+                                <svg
+                                    className="w-4 h-4 transition-colors group-hover/btn:text-red-400 -translate-y-[1px]"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={1.5}
+                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                                    />
+                                </svg>
+                            )}
+                            <span>{likesCount} Reactions</span>
                         </button>
                         <Link
                             to={`/articles/${article.id}#comments`}

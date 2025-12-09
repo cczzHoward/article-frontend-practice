@@ -69,3 +69,11 @@ export const updateArticle = (
 ): Promise<ApiResponse<Article>> => {
     return apiClient.patch(`/articles/${id}`, payload);
 };
+
+export const likeArticle = (id: string): Promise<ApiResponse<Article>> => {
+    return apiClient.post(`/articles/${id}/like`);
+};
+
+export const unlikeArticle = (id: string): Promise<ApiResponse<Article>> => {
+    return apiClient.delete(`/articles/${id}/like`);
+};

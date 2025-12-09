@@ -27,6 +27,8 @@ export interface Article {
     tags?: string[];
     cover_image?: string;
     likes?: number;
+    likes_count?: number;
+    likedBy?: string[];
     comments_count?: number;
     comments?: Comment[];
     created_at: string;

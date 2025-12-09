@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
-import { getArticleById } from '@app/api/article';
+import { getArticleById, likeArticle, unlikeArticle } from '@app/api/article';
 import { createComment, deleteComment } from '@app/api/comment';
 import { useAuth } from '@app/contexts/AuthContext';
 import type { Article } from '@app/types';
@@ -17,6 +17,8 @@ const ArticleDetailPage: React.FC = () => {
     const [article, setArticle] = useState<Article | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [isLiked, setIsLiked] = useState(false);
+    const [likesCount, setLikesCount] = useState(0);
 
     // 判斷來源頁面
     const fromPath = (location.state as any)?.from;
@@ -31,6 +33,10 @@ const ArticleDetailPage: React.FC = () => {
 
             if (response.success) {
                 setArticle(response.data);
+                setLikesCount(response.data.likes_count || response.data.likes || 0);
+                if (user && response.data.likedBy) {
+                    setIsLiked(response.data.likedBy.includes(user.id));
+                }
             }
         } catch (err) {
             console.error(err);
@@ -43,6 +49,45 @@ const ArticleDetailPage: React.FC = () => {
     useEffect(() => {
         fetchArticle();
     }, [id]);
+
+    // Update like status when user changes (e.g. login/logout)
+    useEffect(() => {
+        if (article && user && article.likedBy) {
+            setIsLiked(article.likedBy.includes(user.id));
+        } else if (!user) {
+            setIsLiked(false);
+        }
+    }, [user, article]);
+
+    const handleLike = async () => {
+        if (!article) return;
+        if (!user) {
+            alert('Please login to like this article');
+            return;
+        }
+
+        const prevIsLiked = isLiked;
+        const prevLikesCount = likesCount;
+
+        // Optimistic update
+        setIsLiked(!prevIsLiked);
+        setLikesCount(prevIsLiked ? prevLikesCount - 1 : prevLikesCount + 1);
+
+        try {
+            if (prevIsLiked) {
+                await unlikeArticle(article.id);
+            } else {
+                await likeArticle(article.id);
+            }
+            // Optionally refetch to sync with server, but optimistic update is usually enough
+            // await fetchArticle();
+        } catch (error) {
+            // Revert on error
+            setIsLiked(prevIsLiked);
+            setLikesCount(prevLikesCount);
+            console.error('Failed to update like status', error);
+        }
+    };
 
     const handleCreateComment = async (content: string) => {
         if (!article) return;
@@ -150,6 +195,43 @@ const ArticleDetailPage: React.FC = () => {
                                 </span>
                             </>
                         )}
+                    </div>
+
+                    {/* Like Button */}
+                    <div className="mt-6 flex items-center">
+                        <button
+                            onClick={handleLike}
+                            className={`flex items-center gap-2 rounded-full px-4 py-2 transition-all border ${
+                                isLiked
+                                    ? 'bg-red-500/10 border-red-500/50 text-red-400'
+                                    : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+                            }`}
+                        >
+                            {isLiked ? (
+                                <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path
+                                        fillRule="evenodd"
+                                        d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                                        clipRule="evenodd"
+                                    />
+                                </svg>
+                            ) : (
+                                <svg
+                                    className="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={1.5}
+                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                                    />
+                                </svg>
+                            )}
+                            <span className="font-medium">{likesCount} Likes</span>
+                        </button>
                     </div>
                 </header>
 
