@@ -161,6 +161,10 @@ const ArticleDetailPage: React.FC = () => {
 
             {/* Comments Section */}
             <div className="mt-8 bg-surface border border-slate-700 rounded-xl p-8 shadow-sm">
+                <h3 className="text-lg font-bold text-white mb-6">
+                    Comments ({article.comments?.length || 0})
+                </h3>
+
                 {user ? (
                     <CommentForm onSubmit={handleCreateComment} />
                 ) : (

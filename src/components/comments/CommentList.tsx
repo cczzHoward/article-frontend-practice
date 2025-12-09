@@ -19,8 +19,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onDelete }) => {
     }
 
     return (
-        <div className="space-y-6 border-t border-slate-800 pt-8">
-            <h3 className="text-lg font-bold text-white mb-4">Comments ({comments.length})</h3>
+        <div className="space-y-6">
             {comments.map((comment) => {
                 const isAuthor = user && user.id === comment.user.id;
                 const dateStr = new Date(comment.created_at).toLocaleDateString('en-US', {
