@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { getArticleById } from '@app/api/article';
+import { createComment, deleteComment } from '@app/api/comment';
 import { useAuth } from '@app/contexts/AuthContext';
 import type { Article } from '@app/types';
 import Skeleton from '@app/components/ui/Skeleton';
 import Alert from '@app/components/ui/Alert';
+import CommentList from '@app/components/comments/CommentList';
+import CommentForm from '@app/components/comments/CommentForm';
 
 const ArticleDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -21,24 +24,51 @@ const ArticleDetailPage: React.FC = () => {
     const backLink = isFromProfile ? '/profile' : '/articles';
     const backText = isFromProfile ? 'Back to profile' : 'Back to list';
 
-    useEffect(() => {
-        const fetchArticle = async () => {
-            try {
-                if (!id) return;
-                const response = await getArticleById(id);
+    const fetchArticle = async () => {
+        try {
+            if (!id) return;
+            const response = await getArticleById(id);
 
-                if (response.success) {
-                    setArticle(response.data);
-                }
-            } catch (err) {
-                console.error(err);
-                setError('無法載入文章');
-            } finally {
-                setLoading(false);
+            if (response.success) {
+                setArticle(response.data);
             }
-        };
+        } catch (err) {
+            console.error(err);
+            setError('無法載入文章');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         fetchArticle();
     }, [id]);
+
+    const handleCreateComment = async (content: string) => {
+        if (!article) return;
+        try {
+            const response = await createComment(article.id, content);
+            if (response.success) {
+                await fetchArticle();
+            }
+        } catch (error) {
+            console.error('Failed to create comment', error);
+            throw error;
+        }
+    };
+
+    const handleDeleteComment = async (commentId: string) => {
+        if (!article) return;
+        if (!window.confirm('Are you sure you want to delete this comment?')) return;
+
+        try {
+            await deleteComment(commentId);
+            await fetchArticle();
+        } catch (error) {
+            console.error('Failed to delete comment', error);
+            alert('Failed to delete comment');
+        }
+    };
 
     // 檢查當前使用者是否為文章作者
     const isAuthor =
@@ -128,6 +158,23 @@ const ArticleDetailPage: React.FC = () => {
                     {article.content}
                 </div>
             </article>
+
+            {/* Comments Section */}
+            <div className="mt-8 bg-surface border border-slate-700 rounded-xl p-8 shadow-sm">
+                {user ? (
+                    <CommentForm onSubmit={handleCreateComment} />
+                ) : (
+                    <div className="mb-8 p-4 bg-slate-800/50 rounded-lg text-center text-slate-400 border border-slate-700">
+                        Please{' '}
+                        <Link to="/login" className="text-primary hover:underline">
+                            log in
+                        </Link>{' '}
+                        to leave a comment.
+                    </div>
+                )}
+
+                <CommentList comments={article.comments || []} onDelete={handleDeleteComment} />
+            </div>
         </div>
     );
 };

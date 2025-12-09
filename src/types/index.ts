@@ -11,6 +11,13 @@ export interface Author {
     avatar?: string;
 }
 
+export interface Comment {
+    id: string;
+    content: string;
+    user: Author;
+    created_at: string;
+}
+
 export interface Article {
     id: string;
     title: string;
@@ -21,6 +28,7 @@ export interface Article {
     cover_image?: string;
     likes?: number;
     comments_count?: number;
+    comments?: Comment[];
     created_at: string;
     updated_at: string;
 }
