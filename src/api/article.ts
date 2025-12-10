@@ -38,7 +38,13 @@ apiClient.interceptors.request.use((config) => {
 
 apiClient.interceptors.response.use(
     (response) => normalizeId(response.data),
-    (error) => Promise.reject(error)
+    (error) => {
+        if (error.response?.status === 401) {
+            localStorage.removeItem('auth_token');
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
+    }
 );
 
 export const getArticles = (params?: {
