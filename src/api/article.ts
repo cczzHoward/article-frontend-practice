@@ -51,6 +51,13 @@ export const getArticles = (params?: {
     return apiClient.get('/articles/list', { params });
 };
 
+export const getLikedArticles = (params?: {
+    page?: number;
+    limit?: number;
+}): Promise<ApiResponse<ArticleListResponseData>> => {
+    return apiClient.get('/articles/liked', { params });
+};
+
 export const getArticleById = (id: string): Promise<ApiResponse<Article>> => {
     return apiClient.get(`/articles/${id}`);
 };

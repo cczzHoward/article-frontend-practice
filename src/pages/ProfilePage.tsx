@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@app/contexts/AuthContext';
-import { getArticles } from '@app/api/article';
+import { getArticles, getLikedArticles } from '@app/api/article';
 import { changePassword } from '@app/api/auth';
 import ArticleCard from '@app/components/ArticleCard';
 import type { Article } from '@app/types';
@@ -8,7 +8,7 @@ import Alert from '@app/components/ui/Alert';
 import Input from '@app/components/ui/Input';
 import Skeleton from '@app/components/ui/Skeleton';
 
-type Tab = 'articles' | 'settings';
+type Tab = 'articles' | 'liked' | 'settings';
 
 const ProfilePage: React.FC = () => {
     const { user } = useAuth();
@@ -16,18 +16,28 @@ const ProfilePage: React.FC = () => {
 
     // --- Articles Logic ---
     const [articles, setArticles] = useState<Article[]>([]);
+    const [likedArticles, setLikedArticles] = useState<Article[]>([]);
     const [loadingArticles, setLoadingArticles] = useState(false);
     const [articleError, setArticleError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchMyArticles = async () => {
-            if (!user || activeTab !== 'articles') return;
+            if (!user) return;
+
             try {
                 setLoadingArticles(true);
-                // 注意：這裡依賴後端支援 author 篩選參數
-                const response = await getArticles({ author: user.id });
-                if (response.success) {
-                    setArticles(response.data.data);
+                setArticleError(null);
+
+                if (activeTab === 'articles') {
+                    const response = await getArticles({ author: user.id });
+                    if (response.success) {
+                        setArticles(response.data.data);
+                    }
+                } else if (activeTab === 'liked') {
+                    const response = await getLikedArticles();
+                    if (response.success) {
+                        setLikedArticles(response.data.data);
+                    }
                 }
             } catch (err) {
                 console.error('Failed to fetch articles', err);
@@ -116,6 +126,16 @@ const ProfilePage: React.FC = () => {
                         我的文章
                     </button>
                     <button
+                        onClick={() => setActiveTab('liked')}
+                        className={`cursor-pointer text-left px-4 py-2 rounded-md transition-colors ${
+                            activeTab === 'liked'
+                                ? 'bg-primary text-white font-medium'
+                                : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+                        }`}
+                    >
+                        喜歡的文章
+                    </button>
+                    <button
                         onClick={() => setActiveTab('settings')}
                         className={`cursor-pointer text-left px-4 py-2 rounded-md transition-colors ${
                             activeTab === 'settings'
@@ -137,7 +157,7 @@ const ProfilePage: React.FC = () => {
                         </h2>
 
                         {loadingArticles ? (
-                            <Skeleton count={3} />
+                            <Skeleton count={3} height="h-48" />
                         ) : articleError ? (
                             <Alert message={articleError} />
                         ) : articles.length === 0 ? (
@@ -147,6 +167,30 @@ const ProfilePage: React.FC = () => {
                         ) : (
                             <div className="grid gap-4">
                                 {articles.map((article) => (
+                                    <ArticleCard key={article.id} article={article} />
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {activeTab === 'liked' && (
+                    <div className="space-y-6">
+                        <h2 className="text-2xl font-bold text-white border-b border-slate-700 pb-4">
+                            喜歡的文章 ({likedArticles.length})
+                        </h2>
+
+                        {loadingArticles ? (
+                            <Skeleton count={3} height="h-48" />
+                        ) : articleError ? (
+                            <Alert message={articleError} />
+                        ) : likedArticles.length === 0 ? (
+                            <div className="text-slate-400 text-center py-10 bg-surface/50 rounded-lg border border-slate-800 border-dashed">
+                                尚未收藏任何文章
+                            </div>
+                        ) : (
+                            <div className="grid gap-4">
+                                {likedArticles.map((article) => (
                                     <ArticleCard key={article.id} article={article} />
                                 ))}
                             </div>
