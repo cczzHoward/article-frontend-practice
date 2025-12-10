@@ -190,9 +190,13 @@ const Navbar: React.FC = () => {
                         <hr className="border-slate-700 my-2" />
                         {isAuthenticated ? (
                             <>
-                                <span className="block py-2 text-sm text-slate-300">
+                                <Link
+                                    to="/profile"
+                                    onClick={closeMobileMenu}
+                                    className="block py-2 text-sm text-slate-300 hover:text-primary"
+                                >
                                     {user?.username}
-                                </span>
+                                </Link>
                                 <button
                                     onClick={handleLogout}
                                     disabled={isLoggingOut}
