@@ -81,9 +81,13 @@ export interface CreateArticleRequest {
     title: string;
     content: string;
     category: string; // backend expects category name
+    tags?: string[];
+    cover_image?: string;
 }
 
 export interface UpdateArticleRequest {
     title?: string;
     content?: string;
+    tags?: string[];
+    cover_image?: string;
 }

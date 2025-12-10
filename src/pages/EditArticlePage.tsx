@@ -79,6 +79,8 @@ const EditArticlePage: React.FC = () => {
             title: article.title,
             content: article.content,
             category: categoryName,
+            tags: article.tags || [],
+            cover_image: article.cover_image || '',
         };
     }, [article]);
 
@@ -87,7 +89,12 @@ const EditArticlePage: React.FC = () => {
             throw new Error('Missing article id');
         }
         setError('');
-        const payload = { title: values.title, content: values.content };
+        const payload = {
+            title: values.title,
+            content: values.content,
+            tags: values.tags,
+            cover_image: values.cover_image,
+        };
         const response = await updateArticle(id, payload);
         if (response.success) {
             // 清除草稿
