@@ -66,11 +66,9 @@ const AppRoutes: React.FC = () => {
 
 const App: React.FC = () => {
     return (
-        <Router>
-            <AuthProvider>
-                <AppRoutes />
-            </AuthProvider>
-        </Router>
+        <AuthProvider>
+            <AppRoutes />
+        </AuthProvider>
     );
 };
 
