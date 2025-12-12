@@ -40,7 +40,7 @@ const Navbar: React.FC = () => {
                         to="/"
                         className="text-2xl font-bold text-slate-100 hover:text-primary transition-colors"
                     >
-                        DevFlow
+                        InkFlow
                     </Link>
 
                     {/* Desktop Links */}

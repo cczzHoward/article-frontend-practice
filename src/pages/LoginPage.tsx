@@ -38,7 +38,7 @@ const LoginPage: React.FC = () => {
         <div className="min-h-screen bg-background flex items-center justify-center px-4">
             <div className="w-full max-w-md">
                 <div className="bg-surface border border-slate-700 rounded-lg p-8 shadow-lg">
-                    <h1 className="text-3xl font-bold text-slate-100 mb-2">DevFlow</h1>
+                    <h1 className="text-3xl font-bold text-slate-100 mb-2">InkFlow</h1>
                     <p className="text-slate-400 mb-8">Login to your account</p>
 
                     {error && <Alert type="error" message={error} className="mb-6" />}

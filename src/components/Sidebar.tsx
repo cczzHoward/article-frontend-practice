@@ -143,7 +143,7 @@ const Sidebar: React.FC = () => {
 
             <div className="pt-4 border-t border-slate-700">
                 <div className="bg-surface p-4 rounded-lg border border-slate-700">
-                    <h4 className="font-bold text-slate-100 mb-2">DevFlow Community</h4>
+                    <h4 className="font-bold text-slate-100 mb-2">InkFlow Community</h4>
                     <p className="text-sm text-slate-400 mb-4">
                         Join a constructive and inclusive social network for software developers.
                     </p>
