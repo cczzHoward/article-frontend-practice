@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@app/contexts/AuthContext';
 import Layout from '@app/components/Layout';
 import HomePage from '@app/pages/HomePage';
