@@ -38,8 +38,9 @@ const Navbar: React.FC = () => {
                 <div className="flex items-center gap-8">
                     <Link
                         to="/"
-                        className="text-2xl font-bold text-slate-100 hover:text-primary transition-colors"
+                        className="flex items-center gap-2 text-2xl font-bold text-slate-100 hover:text-primary transition-colors"
                     >
+                        <img src="/favicon.svg" alt="Logo" className="w-8 h-8" />
                         InkFlow
                     </Link>
 
