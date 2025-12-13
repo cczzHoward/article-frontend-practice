@@ -28,6 +28,9 @@ const LoginPage: React.FC = () => {
             await login(username, password);
             navigate('/');
         } catch (err: any) {
+            if (err.response?.status === 401) {
+                navigate('/login');
+            }
             setError(err.response?.data?.message || 'Login failed');
         } finally {
             setIsLoading(false);
