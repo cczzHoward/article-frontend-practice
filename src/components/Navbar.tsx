@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@app/contexts/AuthContext';
+import logo from '@app/assets/logo.svg';
 
 const Navbar: React.FC = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -40,7 +41,7 @@ const Navbar: React.FC = () => {
                         to="/"
                         className="flex items-center gap-2 text-2xl font-bold text-slate-100 hover:text-primary transition-colors"
                     >
-                        <img src="/favicon.svg" alt="Logo" className="w-8 h-8" />
+                        <img src={logo} alt="Logo" className="w-8 h-8" />
                         InkFlow
                     </Link>
 
