@@ -1,30 +1,5 @@
-import axios from 'axios';
+import { apiClient } from './client';
 import type { ApiResponse, LoginRequest, RegisterRequest, AuthResponse, User } from '@app/types';
-
-const apiClient = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1',
-    headers: { 'Content-Type': 'application/json' },
-});
-
-// Request Interceptor: 自動帶入 Token
-apiClient.interceptors.request.use((config) => {
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
-
-// Response Interceptor: 處理 401 (Token 過期)
-apiClient.interceptors.response.use(
-    (response) => response.data,
-    (error) => {
-        if (error.response?.status === 401) {
-            localStorage.removeItem('auth_token');
-        }
-        return Promise.reject(error);
-    }
-);
 
 // 登入
 export const login = (data: LoginRequest): Promise<ApiResponse<AuthResponse>> => {
