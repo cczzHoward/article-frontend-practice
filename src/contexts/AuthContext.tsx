@@ -1,6 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
-import { login as loginApi, register as registerApi } from '@app/api/auth';
+import {
+    login as loginApi,
+    register as registerApi,
+    changePassword as changePasswordApi,
+} from '@app/api/auth';
 import type { User } from '@app/types';
 
 interface AuthContextType {
@@ -99,6 +103,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
+    const changePassword = async (data: any) => {
+        try {
+            const response = await changePasswordApi(data);
+            return response;
+        } catch (err: any) {
+            throw err;
+        }
+    };
+
     const logout = () => {
         localStorage.removeItem('auth_token');
         setUser(null);
@@ -113,6 +126,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 isAuthenticated: !!user,
                 login,
                 register,
+                changePassword,
                 logout,
                 error,
             }}

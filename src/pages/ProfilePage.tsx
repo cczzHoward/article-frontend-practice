@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@app/contexts/AuthContext';
 import { getArticles, getLikedArticles } from '@app/api/article';
-import { changePassword } from '@app/api/auth';
 import ArticleCard from '@app/components/ArticleCard';
 import type { Article } from '@app/types';
 import Alert from '@app/components/ui/Alert';
@@ -11,7 +10,7 @@ import Skeleton from '@app/components/ui/Skeleton';
 type Tab = 'articles' | 'liked' | 'settings';
 
 const ProfilePage: React.FC = () => {
-    const { user } = useAuth();
+    const { user, changePassword } = useAuth();
     const [activeTab, setActiveTab] = useState<Tab>('articles');
 
     // --- Articles Logic ---
@@ -87,6 +86,7 @@ const ProfilePage: React.FC = () => {
                 type: 'error',
                 text: err.response?.data?.message || '修改失敗，請檢查舊密碼是否正確',
             });
+            setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' });
         } finally {
             setLoadingSettings(false);
         }
