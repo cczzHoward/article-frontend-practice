@@ -13,6 +13,7 @@ interface AuthContextType {
     isAuthenticated: boolean;
     login: (username: string, password: string) => Promise<void>;
     register: (username: string, password: string) => Promise<void>;
+    changePassword: (data: any) => Promise<any>;
     logout: () => void;
     error: string | null;
 }
